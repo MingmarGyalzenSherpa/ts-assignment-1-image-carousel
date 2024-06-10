@@ -65,5 +65,15 @@ export default class ImageCarousel {
 
     this.leftBtn.innerHTML = `<i class="fa fa-chevron-left" aria-hidden="true"></i>`;
     this.rightBtn.innerHTML = `<i class="fa fa-chevron-right" aria-hidden="true"></i>`;
+
+    //add event listener
+    this.leftBtn.addEventListener("click", () => this.goLeft());
+    this.rightBtn.addEventListener("click", () => this.goRight());
   }
+
+  goLeft(): void {
+    console.log(this);
+  }
+
+  goRight(): void {}
 }
