@@ -1,3 +1,15 @@
+.carousel-container {
+  max-width: 400px;
+  aspect-ratio: 3/2;
+  position: relative;
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
 .carousel-btn {
   width: 20px;
   height: 30px;
@@ -5,6 +17,7 @@
   top: 40%;
   border: none;
   background-color: transparent;
+  color: white;
 }
 
 .carousel-btn--left {
