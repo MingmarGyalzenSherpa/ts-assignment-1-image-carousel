@@ -6,16 +6,17 @@ export default class ImageCarousel {
   rightBtn: HTMLButtonElement | undefined;
   images: HTMLImageElement[] | undefined;
   curIndex: number;
-  containerWidth?: number;
+  containerWidth: number;
   indicatorContainer?: HTMLElement;
   transition: number;
   automaticScroll;
   constructor(containerID: string, transition: number = 1000) {
+    //setting up image-carousel-container
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
     this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
     this.transition = transition;
-    this.curIndex = 0;
+    this.curIndex = 0; // initially set to 0
     if (this.container == null) {
       alert("No element with corresponding id found!!");
       return;
@@ -38,16 +39,17 @@ export default class ImageCarousel {
   setupImages(): void {
     let images: NodeListOf<HTMLImageElement> | undefined =
       this.container?.querySelectorAll<HTMLImageElement>("img");
+
     if (images == undefined) {
       alert("no images found");
-    } else {
-      this.images = Array.from(images);
-      //   set position of each image
-      this.images.forEach((image, i) => {
-        image.style.top = "0px";
-        image.style.left = `${i * this.containerWidth!}px`;
-      });
+      return;
     }
+    this.images = Array.from(images);
+    // set initial position of each image
+    this.images.forEach((image, i) => {
+      image.style.top = "0px";
+      image.style.left = `${i * this.containerWidth!}px`;
+    });
   }
 
   setupButton(): void {
@@ -59,9 +61,11 @@ export default class ImageCarousel {
     this.container?.appendChild(this.leftBtn);
     this.container?.appendChild(this.rightBtn);
 
+    //add related classes
     this.leftBtn.classList.add("carousel-btn", "carousel-btn--left");
     this.rightBtn.classList.add("carousel-btn", "carousel-btn--right");
 
+    //add button content
     this.leftBtn.innerHTML = `<i class="fa fa-chevron-left" aria-hidden="true"></i>`;
     this.rightBtn.innerHTML = `<i class="fa fa-chevron-right" aria-hidden="true"></i>`;
 
@@ -81,6 +85,8 @@ export default class ImageCarousel {
     this.indicatorContainer.classList.add("indicator-container");
     this.container?.appendChild(this.indicatorContainer);
     let indicator: HTMLElement;
+
+    //set each indicator class and add to indicator container
     for (let i = 0; i < this.images!.length; i++) {
       indicator = document.createElement("div");
       indicator.classList.add(`indicator-${i}`);
@@ -93,12 +99,16 @@ export default class ImageCarousel {
 
   nextImage(direction: Direction, isAutomatic: boolean = true): void {
     let nextIndex: number;
+
+    //calculate the next index
     if (direction == Direction.left) {
       nextIndex =
         this.curIndex == 0 ? this.images!.length - 1 : this.curIndex - 1;
     } else {
       nextIndex = (this.curIndex + 1) % this.images!.length;
     }
+
+    //store the current and next indicators
     let curIndicator = this.indicatorContainer?.querySelector(
       `.indicator-${this.curIndex}`
     );
@@ -106,35 +116,34 @@ export default class ImageCarousel {
       `.indicator-${nextIndex}`
     );
 
+    //grab the initial position of next image
     let nextImageLeftPos: number = +this.images![nextIndex].style.left.slice(
       0,
       -2
     );
+
+    //grap how far the next image is
     let offsetX: number = Math.abs(nextImageLeftPos);
-    console.log({
-      offsetX,
-      transition: this.transition,
-      result: this.transition / offsetX,
-    });
-    let left: number;
+
+    let left: number; //for storing the x position of each images
     let interval = setInterval(() => {
       if (
         (nextIndex < this.curIndex && nextImageLeftPos > 0) ||
         (nextIndex > this.curIndex && nextImageLeftPos < 0)
       ) {
+        //clear automatic interval if function being invoked by button click
         if (!isAutomatic) {
           this.automaticScroll = setInterval(() => {
             this.nextImage(Direction.right);
           }, this.transition * 5);
         }
         this.curIndex = nextIndex;
-        console.log(curIndicator);
-        console.log(nextIndicator);
         curIndicator?.classList.toggle("indicator--active");
         nextIndicator?.classList.toggle("indicator--active");
         clearInterval(interval);
       }
 
+      //change the x of each images
       this.images?.forEach((image) => {
         left = +image.style.left.slice(0, -2);
         image.style.left = `${
@@ -147,8 +156,9 @@ export default class ImageCarousel {
 
   moveTo(index: number) {
     if (this.curIndex === index) return;
+    //clear the ongoing automatic scroll interval
     clearInterval(this.automaticScroll);
-    console.log({ curIndex: this.curIndex, index });
+
     let nextImageLeftPos: number = +this.images![index].style.left.slice(0, -2);
     let offsetX = Math.abs(nextImageLeftPos);
     let left: number;
@@ -171,9 +181,9 @@ export default class ImageCarousel {
         }, this.transition * 5);
         clearInterval(interval);
       }
+      
       this.images?.forEach((image) => {
         left = +image.style.left.slice(0, -2);
-        console.log(this.curIndex < index);
         image.style.left = `${this.curIndex < index ? left - 1 : left + 1}px`;
       });
       nextImageLeftPos = +this.images![index].style.left.slice(0, -2);
