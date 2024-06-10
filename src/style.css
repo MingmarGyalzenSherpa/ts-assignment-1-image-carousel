@@ -9,6 +9,7 @@ img {
   width: 100%;
   height: 100%;
   position: absolute;
+  z-index: -9;
 }
 
 .carousel-btn {
@@ -19,6 +20,33 @@ img {
   border: none;
   background-color: transparent;
   color: white;
+}
+
+.indicator-container {
+  background-color: red;
+  min-height: 20px;
+  min-width: 20px;
+  position: absolute;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  left: 45%;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: green;
+}
+
+.indicator--active {
+  background-color: grey;
+  width: 10px;
+  height: 10px;
 }
 
 .carousel-btn--left {

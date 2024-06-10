@@ -6,6 +6,7 @@ export default class ImageCarousel {
   images: HTMLImageElement[] | undefined;
   curIndex: number;
   containerWidth?: number;
+  indicatorContainer?: HTMLElement;
   constructor(containerID: string) {
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
@@ -17,6 +18,7 @@ export default class ImageCarousel {
     }
     this.setupImages();
     this.setupButton();
+    this.setupIndicators();
     window.addEventListener("resize", () => this.updateContainerWidth());
   }
 
@@ -60,6 +62,20 @@ export default class ImageCarousel {
     this.rightBtn.addEventListener("click", () => this.goRight());
   }
 
+  setupIndicators() {
+    this.indicatorContainer = document.createElement("div");
+    this.indicatorContainer.classList.add("indicator-container");
+    this.container?.appendChild(this.indicatorContainer);
+    let indicator: HTMLElement;
+    for (let i = 0; i < this.images!.length; i++) {
+      indicator = document.createElement("div");
+      indicator.classList.add(`indicator-${i}`);
+      if (i == this.curIndex) indicator.classList.toggle("indicator--active");
+      indicator.classList.add("indicator");
+      this.indicatorContainer.appendChild(indicator);
+    }
+  }
+
   goLeft(): void {
     let prevImageLeft: number = +this.images![
       this.curIndex - 1
@@ -81,6 +97,18 @@ export default class ImageCarousel {
   }
 
   goRight(): void {
+    let curIndicator = this.indicatorContainer?.querySelector(
+      `.indicator-${this.curIndex}`
+    );
+    let nextIndicator = this.indicatorContainer?.querySelector(
+      `.indicator-${this.curIndex + 1}`
+    );
+    console.log(curIndicator);
+    curIndicator?.classList.toggle(`indicator--active`);
+    nextIndicator?.classList.toggle(`indicator--active`);
+
+    console.log(curIndicator);
+
     let nextImageLeft: number = +this.images![
       this.curIndex + 1
     ].style.left.slice(0, -2);
