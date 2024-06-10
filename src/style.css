@@ -32,7 +32,7 @@ img {
   justify-content: center;
   align-items: center;
   gap: 4px;
-  left: 45%;
+  width: 100%;
 }
 
 .indicator {

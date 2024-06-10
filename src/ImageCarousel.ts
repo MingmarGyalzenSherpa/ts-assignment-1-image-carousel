@@ -7,6 +7,7 @@ export default class ImageCarousel {
   curIndex: number;
   containerWidth?: number;
   indicatorContainer?: HTMLElement;
+
   constructor(containerID: string) {
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
@@ -58,8 +59,8 @@ export default class ImageCarousel {
     this.rightBtn.innerHTML = `<i class="fa fa-chevron-right" aria-hidden="true"></i>`;
 
     //add event listener
-    this.leftBtn.addEventListener("click", () => this.goLeft());
-    this.rightBtn.addEventListener("click", () => this.goRight());
+    this.leftBtn.addEventListener("click", () => this.nextImage("left"));
+    this.rightBtn.addEventListener("click", () => this.nextImage("right"));
   }
 
   setupIndicators() {
@@ -127,5 +128,47 @@ export default class ImageCarousel {
       });
       nextImageLeft = +this.images![this.curIndex + 1].style.left.slice(0, -2);
     }, 5 / 2);
+  }
+
+  nextImage(direction: string): void {
+    let nextIndex: number;
+    if (direction == "left") {
+      nextIndex =
+        this.curIndex == 0 ? this.images!.length - 1 : this.curIndex - 1;
+      console.log(nextIndex);
+    } else {
+      nextIndex = (this.curIndex + 1) % this.images!.length;
+    }
+    let curIndicator = this.indicatorContainer?.querySelector(
+      `.indicator-${this.curIndex}`
+    );
+    let nextIndicator = this.indicatorContainer?.querySelector(
+      `.indicator-${nextIndex}`
+    );
+
+    let nextImageLeftPos: number = +this.images![nextIndex].style.left.slice(
+      0,
+      -2
+    );
+    console.log({ nextImageLeftPos });
+    let left: number;
+    let interval = setInterval(() => {
+      if (nextImageLeftPos == 0) {
+        this.curIndex = nextIndex;
+        console.log(curIndicator);
+        console.log(nextIndicator);
+        curIndicator?.classList.toggle("indicator--active");
+        nextIndicator?.classList.toggle("indicator--active");
+        clearInterval(interval);
+      }
+
+      this.images?.forEach((image) => {
+        left = +image.style.left.slice(0, -2);
+        image.style.left = `${
+          this.curIndex < nextIndex ? left - 1 : left + 1
+        }px`;
+      });
+      nextImageLeftPos = +this.images![nextIndex].style.left.slice(0, -2);
+    });
   }
 }
