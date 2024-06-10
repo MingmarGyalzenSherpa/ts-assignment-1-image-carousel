@@ -23,7 +23,6 @@ img {
 }
 
 .indicator-container {
-  background-color: red;
   min-height: 20px;
   min-width: 20px;
   position: absolute;
@@ -40,11 +39,11 @@ img {
   height: 8px;
   border-radius: 50%;
   display: inline-block;
-  background-color: green;
+  background-color: rgb(216, 217, 218);
 }
 
 .indicator--active {
-  background-color: grey;
+  background-color: rgb(51, 94, 236);
   width: 10px;
   height: 10px;
 }
