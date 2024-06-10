@@ -2,6 +2,7 @@
   max-width: 400px;
   aspect-ratio: 3/2;
   position: relative;
+  overflow: hidden;
 }
 
 img {

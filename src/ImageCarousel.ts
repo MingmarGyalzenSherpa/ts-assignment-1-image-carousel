@@ -4,19 +4,19 @@ export default class ImageCarousel {
   leftBtn: HTMLButtonElement | undefined;
   rightBtn: HTMLButtonElement | undefined;
   images: HTMLImageElement[] | undefined;
-  curIndex?: number;
+  curIndex: number;
   containerWidth?: number;
   constructor(containerID: string) {
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
+    this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
+    this.curIndex = 0;
     if (this.container == null) {
       alert("No element with corresponding id found!!");
       return;
     }
-    this.setupContainer();
     this.setupImages();
     this.setupButton();
-
     window.addEventListener("resize", () => this.updateContainerWidth());
   }
 
@@ -24,36 +24,18 @@ export default class ImageCarousel {
     this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
     console.log(this.containerWidth);
   }
-  setupContainer(): void {
-    try {
-      if (this.container != null) {
-        // this.container.style.maxWidth = 400 + "px";
-        // this.container.style.minHeight = 300 + "px";
-        // this.container.style.border = "1px solid black";
-        // this.container.style.position = "relative";
-        console.log(this.container);
-      } else {
-        throw new Error("container is null");
-      }
-    } catch (e: any) {
-      console.log(e);
-    }
-  }
 
   setupImages(): void {
     let images: NodeListOf<HTMLImageElement> | undefined =
       this.container?.querySelectorAll<HTMLImageElement>("img");
-    let width: number = +getComputedStyle(this.container!).width.slice(0, -2);
-    console.log(width);
-
     if (images == undefined) {
       alert("no images found");
     } else {
       this.images = Array.from(images);
-      this.curIndex = 0;
       //   set position of each image
       this.images.forEach((image, i) => {
-        console.log(getComputedStyle(image).width);
+        image.style.top = "0px";
+        image.style.left = `${i * this.containerWidth!}px`;
       });
     }
   }
@@ -79,8 +61,43 @@ export default class ImageCarousel {
   }
 
   goLeft(): void {
-    console.log(this);
+    let prevImageLeft: number = +this.images![
+      this.curIndex - 1
+    ].style.left.slice(0, -2);
+
+    let left: number;
+
+    let interval = setInterval(() => {
+      if (prevImageLeft == 0) {
+        this.curIndex -= 1;
+        clearInterval(interval);
+      }
+      this.images?.forEach((image) => {
+        left = +image.style.left.slice(0, -2);
+        image.style.left = `${left + 1}px`;
+      });
+      prevImageLeft = +this.images![this.curIndex - 1].style.left.slice(0, -2);
+    }, 5 / 2);
   }
 
-  goRight(): void {}
+  goRight(): void {
+    let nextImageLeft: number = +this.images![
+      this.curIndex + 1
+    ].style.left.slice(0, -2);
+    let left: number;
+    console.log(nextImageLeft);
+
+    let interval = setInterval(() => {
+      if (nextImageLeft <= 0) {
+        this.curIndex += 1;
+        clearInterval(interval);
+      }
+      this.images?.forEach((image) => {
+        left = +image.style.left.slice(0, -2);
+        image.style.left = `${left - 1}px`;
+        console.log(left);
+      });
+      nextImageLeft = +this.images![this.curIndex + 1].style.left.slice(0, -2);
+    }, 5 / 2);
+  }
 }
