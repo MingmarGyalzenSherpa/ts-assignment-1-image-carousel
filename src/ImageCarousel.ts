@@ -26,12 +26,14 @@ export default class ImageCarousel {
       return;
     }
 
-    this.isTabVisible = true;
     this.btnClicked = false;
     this.setupImages();
     this.setupButton();
     this.setupIndicators();
-    window.addEventListener("resize", () => this.updateContainerWidth());
+    window.addEventListener("resize", () => {
+      this.updateContainerWidth();
+      this.setupImages();
+    });
 
     //automatic scroll
     this.automaticScrollId = setInterval(
