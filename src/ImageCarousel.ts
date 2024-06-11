@@ -13,6 +13,7 @@ export default class ImageCarousel {
   btnClicked?: boolean;
   automaticScrollId?: number;
   isAutomaticScrolling?: boolean;
+  isTabVisible: boolean;
   constructor(containerID: string, transition: number = 1000) {
     //setting up image-carousel-container
     this.containerID = containerID;
@@ -25,6 +26,8 @@ export default class ImageCarousel {
       alert("No element with corresponding id found!!");
       return;
     }
+
+    this.isTabVisible = true;
     this.btnClicked = false;
     this.setupImages();
     this.setupButton();
@@ -36,6 +39,18 @@ export default class ImageCarousel {
       () => this.nextImage(Direction.right, true),
       this.transition * 2
     );
+
+    // remove on visibility change
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState == "visible") {
+        this.automaticScrollId = setInterval(
+          () => this.nextImage(Direction.right, true),
+          this.transition * 2
+        );
+      } else {
+        clearInterval(this.automaticScrollId);
+      }
+    });
   }
 
   updateContainerWidth(): void {
