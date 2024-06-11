@@ -34,7 +34,7 @@ export default class ImageCarousel {
     //automatic scroll
     this.automaticScrollId = setInterval(
       () => this.nextImage(Direction.right, true),
-      this.transition * 4
+      this.transition * 2
     );
   }
 
@@ -159,7 +159,7 @@ export default class ImageCarousel {
           console.log("interval set");
           this.automaticScrollId = setInterval(
             () => this.nextImage(Direction.right, true),
-            this.transition * 4
+            this.transition * 2
           );
         } else {
           this.isAutomaticScrolling = false;
@@ -219,7 +219,7 @@ export default class ImageCarousel {
         nextIndicator?.classList.toggle("indicator--active");
         this.automaticScrollId = setInterval(
           () => this.nextImage(Direction.right, true),
-          this.transition * 4
+          this.transition * 2
         );
         this.btnClicked = false;
 
