@@ -44,6 +44,11 @@ img {
   background-color: rgb(216, 217, 218);
 }
 
+.indicator:hover {
+  cursor: pointer;
+  background-color: rgb(154, 155, 156);
+}
+
 .indicator--active {
   background-color: rgb(51, 94, 236);
   width: 10px;
