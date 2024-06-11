@@ -9,12 +9,15 @@ export default class ImageCarousel {
   containerWidth: number;
   indicatorContainer?: HTMLElement;
   transition: number;
-  automaticScroll;
+  // automaticScroll;
+  start?: DOMHighResTimeStamp;
   constructor(containerID: string, transition: number = 1000) {
     //setting up image-carousel-container
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
+    console.log(this.container);
     this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
+
     this.transition = transition;
     this.curIndex = 0; // initially set to 0
     if (this.container == null) {
@@ -26,9 +29,9 @@ export default class ImageCarousel {
     this.setupIndicators();
     window.addEventListener("resize", () => this.updateContainerWidth());
     //set automatic scroll
-    this.automaticScroll = setInterval(() => {
-      this.nextImage(Direction.right);
-    }, this.transition * 5);
+    // this.automaticScroll = setInterval(() => {
+    //   this.nextImage(Direction.right);
+    // }, this.transition * 5);
   }
 
   updateContainerWidth(): void {
@@ -71,11 +74,11 @@ export default class ImageCarousel {
 
     //add event listener
     this.leftBtn.addEventListener("click", () => {
-      clearInterval(this.automaticScroll);
+      // clearInterval(this.automaticScroll);
       this.nextImage(Direction.left, false);
     });
     this.rightBtn.addEventListener("click", () => {
-      clearInterval(this.automaticScroll);
+      // clearInterval(this.automaticScroll);
       this.nextImage(Direction.right, false);
     });
   }
@@ -90,7 +93,7 @@ export default class ImageCarousel {
     for (let i = 0; i < this.images!.length; i++) {
       indicator = document.createElement("div");
       indicator.classList.add(`indicator-${i}`);
-      indicator.addEventListener("click", () => this.moveTo(i));
+      // indicator.addEventListener("click", () => this.moveTo(i));
       if (i == this.curIndex) indicator.classList.toggle("indicator--active");
       indicator.classList.add("indicator");
       this.indicatorContainer.appendChild(indicator);
@@ -126,67 +129,109 @@ export default class ImageCarousel {
     let offsetX: number = Math.abs(nextImageLeftPos);
 
     let left: number; //for storing the x position of each images
-    let interval = setInterval(() => {
+    // let start: DOMHighResTimeStamp, prevTimeStamp: DOMHighResTimeStamp;
+    let dx: number = (offsetX * 16) / this.transition;
+    console.log(dx);
+    let refId: number;
+    const animationCallBack = () => {
+      console.log(nextImageLeftPos);
+      console.log(nextImageLeftPos <= 0);
+
       if (
-        (nextIndex < this.curIndex && nextImageLeftPos > 0) ||
-        (nextIndex > this.curIndex && nextImageLeftPos < 0)
+        (nextIndex < this.curIndex && nextImageLeftPos >= 0) ||
+        (nextIndex > this.curIndex && nextImageLeftPos <= 0)
       ) {
-        //clear automatic interval if function being invoked by button click
-        if (!isAutomatic) {
-          this.automaticScroll = setInterval(() => {
-            this.nextImage(Direction.right);
-          }, this.transition * 5);
-        }
         this.curIndex = nextIndex;
         curIndicator?.classList.toggle("indicator--active");
         nextIndicator?.classList.toggle("indicator--active");
-        clearInterval(interval);
+        console.log("cancel");
+        cancelAnimationFrame(refId);
+      } else {
+        this.images?.forEach((image, i) => {
+          left = +image.style.left.slice(0, -2);
+          if (i == nextIndex) {
+            image.style.left = `${
+              this.curIndex < nextIndex
+                ? left - dx < 0
+                  ? 0
+                  : left - dx
+                : left + dx > 0
+                ? 0
+                : left + dx
+            }px`;
+          } else {
+            image.style.left = `${
+              this.curIndex < nextIndex ? left - dx : left + dx
+            }px`;
+          }
+        });
+        nextImageLeftPos = +this.images![nextIndex].style.left.slice(0, -2);
+        refId = requestAnimationFrame(animationCallBack);
       }
+    };
+    refId = requestAnimationFrame(animationCallBack);
 
-      //change the x of each images
-      this.images?.forEach((image) => {
-        left = +image.style.left.slice(0, -2);
-        image.style.left = `${
-          this.curIndex < nextIndex ? left - 1 : left + 1
-        }px`;
-      });
-      nextImageLeftPos = +this.images![nextIndex].style.left.slice(0, -2);
-    }, this.transition / offsetX);
+    // let interval = setInterval(() => {
+    //   if (
+    //     (nextIndex < this.curIndex && nextImageLeftPos > 0) ||
+    //     (nextIndex > this.curIndex && nextImageLeftPos < 0)
+    //   ) {
+    //     //clear automatic interval if function being invoked by button click
+    //     if (!isAutomatic) {
+    //       this.automaticScroll = setInterval(() => {
+    //         this.nextImage(Direction.right);
+    //       }, this.transition * 5);
+    //     }
+    //     this.curIndex = nextIndex;
+    //     curIndicator?.classList.toggle("indicator--active");
+    //     nextIndicator?.classList.toggle("indicator--active");
+    //     clearInterval(interval);
+    //   }
+
+    //   //change the x of each images
+    //   this.images?.forEach((image) => {
+    //     left = +image.style.left.slice(0, -2);
+    //     image.style.left = `${
+    //       this.curIndex < nextIndex ? left - 1 : left + 1
+    //     }px`;
+    //   });
+    //   nextImageLeftPos = +this.images![nextIndex].style.left.slice(0, -2);
+    // }, this.transition / offsetX);
   }
 
-  moveTo(index: number) {
-    if (this.curIndex === index) return;
-    //clear the ongoing automatic scroll interval
-    clearInterval(this.automaticScroll);
+  // moveTo(index: number) {
+  //   if (this.curIndex === index) return;
+  //   //clear the ongoing automatic scroll interval
+  //   clearInterval(this.automaticScroll);
 
-    let nextImageLeftPos: number = +this.images![index].style.left.slice(0, -2);
-    let offsetX = Math.abs(nextImageLeftPos);
-    let left: number;
-    let curIndicator = this.indicatorContainer?.querySelector(
-      `.indicator-${this.curIndex}`
-    );
-    let nextIndicator = this.indicatorContainer?.querySelector(
-      `.indicator-${index}`
-    );
-    let interval = setInterval(() => {
-      if (
-        (index < this.curIndex && nextImageLeftPos > 0) ||
-        (index > this.curIndex && nextImageLeftPos < 0)
-      ) {
-        curIndicator?.classList.toggle("indicator--active");
-        nextIndicator?.classList.toggle("indicator--active");
-        this.curIndex = index;
-        this.automaticScroll = setInterval(() => {
-          this.nextImage(Direction.right);
-        }, this.transition * 5);
-        clearInterval(interval);
-      }
-      
-      this.images?.forEach((image) => {
-        left = +image.style.left.slice(0, -2);
-        image.style.left = `${this.curIndex < index ? left - 1 : left + 1}px`;
-      });
-      nextImageLeftPos = +this.images![index].style.left.slice(0, -2);
-    }, this.transition / offsetX);
-  }
+  //   let nextImageLeftPos: number = +this.images![index].style.left.slice(0, -2);
+  //   let offsetX = Math.abs(nextImageLeftPos);
+  //   let left: number;
+  //   let curIndicator = this.indicatorContainer?.querySelector(
+  //     `.indicator-${this.curIndex}`
+  //   );
+  //   let nextIndicator = this.indicatorContainer?.querySelector(
+  //     `.indicator-${index}`
+  //   );
+  //   let interval = setInterval(() => {
+  //     if (
+  //       (index < this.curIndex && nextImageLeftPos > 0) ||
+  //       (index > this.curIndex && nextImageLeftPos < 0)
+  //     ) {
+  //       curIndicator?.classList.toggle("indicator--active");
+  //       nextIndicator?.classList.toggle("indicator--active");
+  //       this.curIndex = index;
+  //       this.automaticScroll = setInterval(() => {
+  //         this.nextImage(Direction.right);
+  //       }, this.transition * 5);
+  //       clearInterval(interval);
+  //     }
+
+  //     this.images?.forEach((image) => {
+  //       left = +image.style.left.slice(0, -2);
+  //       image.style.left = `${this.curIndex < index ? left - 1 : left + 1}px`;
+  //     });
+  //     nextImageLeftPos = +this.images![index].style.left.slice(0, -2);
+  //   }, this.transition / offsetX);
+  // }
 }
