@@ -9,13 +9,14 @@ export default class ImageCarousel {
   containerWidth: number;
   indicatorContainer?: HTMLElement;
   transition: number;
-  // automaticScroll;
   start?: DOMHighResTimeStamp;
+  btnClicked?: boolean;
+  automaticScrollId?: number;
+  isAutomaticScrolling?: boolean;
   constructor(containerID: string, transition: number = 1000) {
     //setting up image-carousel-container
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
-    console.log(this.container);
     this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
 
     this.transition = transition;
@@ -24,19 +25,21 @@ export default class ImageCarousel {
       alert("No element with corresponding id found!!");
       return;
     }
+    this.btnClicked = false;
     this.setupImages();
     this.setupButton();
     this.setupIndicators();
     window.addEventListener("resize", () => this.updateContainerWidth());
-    //set automatic scroll
-    // this.automaticScroll = setInterval(() => {
-    //   this.nextImage(Direction.right);
-    // }, this.transition * 5);
+
+    //automatic scroll
+    this.automaticScrollId = setInterval(
+      () => this.nextImage(Direction.right, true),
+      this.transition * 4
+    );
   }
 
   updateContainerWidth(): void {
     this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
-    console.log(this.containerWidth);
   }
 
   setupImages(): void {
@@ -74,11 +77,11 @@ export default class ImageCarousel {
 
     //add event listener
     this.leftBtn.addEventListener("click", () => {
-      // clearInterval(this.automaticScroll);
+      this.btnClicked = true;
       this.nextImage(Direction.left, false);
     });
     this.rightBtn.addEventListener("click", () => {
-      // clearInterval(this.automaticScroll);
+      if (this.isAutomaticScrolling) this.btnClicked = true;
       this.nextImage(Direction.right, false);
     });
   }
@@ -101,6 +104,15 @@ export default class ImageCarousel {
   }
 
   nextImage(direction: Direction, isAutomatic: boolean = true): void {
+    if (isAutomatic && this.btnClicked) return;
+    if (!isAutomatic && this.isAutomaticScrolling) {
+      this.btnClicked = false;
+      return;
+    }
+    if (!isAutomatic) {
+      console.log("interval removed");
+      clearInterval(this.automaticScrollId);
+    }
     let nextIndex: number;
 
     //calculate the next index
@@ -131,11 +143,9 @@ export default class ImageCarousel {
     let left: number; //for storing the x position of each images
     // let start: DOMHighResTimeStamp, prevTimeStamp: DOMHighResTimeStamp;
     let dx: number = (offsetX * 20) / this.transition;
-    console.log(dx);
     let refId: number;
     const animationCallBack = () => {
-      console.log(nextImageLeftPos);
-      console.log(nextImageLeftPos <= 0);
+      if (isAutomatic) this.isAutomaticScrolling = true;
 
       if (
         (nextIndex < this.curIndex && nextImageLeftPos >= 0) ||
@@ -144,7 +154,16 @@ export default class ImageCarousel {
         this.curIndex = nextIndex;
         curIndicator?.classList.toggle("indicator--active");
         nextIndicator?.classList.toggle("indicator--active");
-        console.log("cancel");
+        this.btnClicked = false;
+        if (!isAutomatic) {
+          console.log("interval set");
+          this.automaticScrollId = setInterval(
+            () => this.nextImage(Direction.right, true),
+            this.transition * 4
+          );
+        } else {
+          this.isAutomaticScrolling = false;
+        }
         cancelAnimationFrame(refId);
       } else {
         this.images?.forEach((image, i) => {
@@ -173,6 +192,9 @@ export default class ImageCarousel {
   }
 
   moveTo(index: number) {
+    if (this.isAutomaticScrolling) return;
+    this.btnClicked = true;
+    clearInterval(this.automaticScrollId);
     if (this.curIndex === index) return;
     //clear the ongoing automatic scroll interval
 
@@ -186,12 +208,8 @@ export default class ImageCarousel {
       `.indicator-${index}`
     );
     let dx: number = (offsetX * 20) / this.transition;
-    console.log(dx);
     let refId: number;
     const animationCallBack = () => {
-      console.log(nextImageLeftPos);
-      console.log(nextImageLeftPos <= 0);
-
       if (
         (index < this.curIndex && nextImageLeftPos >= 0) ||
         (index > this.curIndex && nextImageLeftPos <= 0)
@@ -199,7 +217,12 @@ export default class ImageCarousel {
         this.curIndex = index;
         curIndicator?.classList.toggle("indicator--active");
         nextIndicator?.classList.toggle("indicator--active");
-        console.log("cancel");
+        this.automaticScrollId = setInterval(
+          () => this.nextImage(Direction.right, true),
+          this.transition * 4
+        );
+        this.btnClicked = false;
+
         cancelAnimationFrame(refId);
       } else {
         this.images?.forEach((image, i) => {
