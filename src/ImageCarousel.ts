@@ -17,7 +17,7 @@ export default class ImageCarousel {
     //setting up image-carousel-container
     this.containerID = containerID;
     this.container = document.getElementById(this.containerID);
-    this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
+    this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2); // normally in "20px" format , so removing"px";
 
     this.transition = transition;
     this.curIndex = 0; // initially set to 0
@@ -55,7 +55,7 @@ export default class ImageCarousel {
   }
 
   updateContainerWidth(): void {
-    this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2);
+    this.containerWidth = +getComputedStyle(this.container!).width.slice(0, -2); // normally in "20px" format , so removing"px";
   }
 
   setupImages(): void {
@@ -151,7 +151,7 @@ export default class ImageCarousel {
     let nextImageLeftPos: number = +this.images![nextIndex].style.left.slice(
       0,
       -2
-    );
+    ); // normally in "20px" format , so removing"px";
 
     //grap how far the next image is
     let offsetX: number = Math.abs(nextImageLeftPos);
@@ -183,7 +183,7 @@ export default class ImageCarousel {
         cancelAnimationFrame(refId);
       } else {
         this.images?.forEach((image, i) => {
-          left = +image.style.left.slice(0, -2);
+          left = +image.style.left.slice(0, -2); // normally in "20px" format , so removing"px";
           if (i == nextIndex) {
             image.style.left = `${
               this.curIndex < nextIndex
@@ -200,7 +200,7 @@ export default class ImageCarousel {
             }px`;
           }
         });
-        nextImageLeftPos = +this.images![nextIndex].style.left.slice(0, -2);
+        nextImageLeftPos = +this.images![nextIndex].style.left.slice(0, -2); // normally in "20px" format , so removing"px";
         refId = requestAnimationFrame(animationCallBack);
       }
     };
@@ -214,7 +214,7 @@ export default class ImageCarousel {
     if (this.curIndex === index) return;
     //clear the ongoing automatic scroll interval
 
-    let nextImageLeftPos: number = +this.images![index].style.left.slice(0, -2);
+    let nextImageLeftPos: number = +this.images![index].style.left.slice(0, -2); // normally in "20px" format , so removing"px";
     let offsetX = Math.abs(nextImageLeftPos);
     let left: number;
     let curIndicator = this.indicatorContainer?.querySelector(
@@ -242,7 +242,7 @@ export default class ImageCarousel {
         cancelAnimationFrame(refId);
       } else {
         this.images?.forEach((image, i) => {
-          left = +image.style.left.slice(0, -2);
+          left = +image.style.left.slice(0, -2); // normally in "20px" format , so removing"px";
           if (i == index) {
             image.style.left = `${
               this.curIndex < index
@@ -259,7 +259,7 @@ export default class ImageCarousel {
             }px`;
           }
         });
-        nextImageLeftPos = +this.images![index].style.left.slice(0, -2);
+        nextImageLeftPos = +this.images![index].style.left.slice(0, -2); // normally in "20px" format , so removing"px";
         refId = requestAnimationFrame(animationCallBack);
       }
     };
