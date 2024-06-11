@@ -13,7 +13,6 @@ export default class ImageCarousel {
   btnClicked?: boolean;
   automaticScrollId?: number;
   isAutomaticScrolling?: boolean;
-  isTabVisible: boolean;
   constructor(containerID: string, transition: number = 1000) {
     //setting up image-carousel-container
     this.containerID = containerID;
